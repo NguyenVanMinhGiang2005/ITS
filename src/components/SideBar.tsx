@@ -3,9 +3,9 @@ import { NavLink } from "react-router-dom";
 
 const menuItem = [
   { icon: <House />, label: "Home", to: "/" },
-  { icon: <Search />, label: "Search", to: "/search" },
-  { icon: <LaptopMinimalCheck />, label: "Test", to: "test-img" },
-  { icon: "", label: "Home" },
+  { icon: <Search />, label: "Tìm kiếm", to: "/search" },
+  { icon: <LaptopMinimalCheck />, label: "Check phạt nguội", to: "test-img" },
+  
 ];
 
 
@@ -55,3 +55,4 @@ const SideBar = () => {
 };
 
 export default SideBar;
+
