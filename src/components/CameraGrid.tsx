@@ -1,15 +1,19 @@
 import CameraFeed from "./CameraFeed";
-import { CAMERAS } from "../data/cam";
+import { Camera } from "@/data/cam";
 
-const CameraGrid = () => {
+interface CameraGridProps {
+  cameras: Camera[];
+}
+
+const CameraGrid = ({ cameras }: CameraGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-      {CAMERAS.map((camera) => (
+      {cameras.map((camera) => (
         <CameraFeed
           key={camera.id}
           cameraId={camera.id}
-          cameraName={camera.name}
-          urlImg={camera.imageUrl}
+          cameraName={camera.location}
+          url={camera.url}
         />
       ))}
     </div>
