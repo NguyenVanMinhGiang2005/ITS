@@ -1,12 +1,13 @@
+// src\components\CameraFeed.tsx
 import { useEffect, useState, useRef } from "react";
 
 interface CameraFeedProps {
   cameraId: string;
   cameraName: string;
-  urlImg: string;
+  url: string;
 }
 
-const CameraFeed = ({ cameraId, cameraName, urlImg }: CameraFeedProps) => {
+const CameraFeed = ({ cameraId, cameraName, url }: CameraFeedProps) => {
   const x = false
 
   // Thời gian 
@@ -16,12 +17,12 @@ const CameraFeed = ({ cameraId, cameraName, urlImg }: CameraFeedProps) => {
     return () => clearInterval(id);
   }, []);
 
-  // update hình ảnh sau 12s dcmmm m Lâm ơi 
-  const [src, setSrc] = useState(`${urlImg}&t=${Date.now()}`);
+  // update hình ảnh sau 12s
+  const [src, setSrc] = useState(`${url}&t=${Date.now()}`);
   const timerRef = useRef<number | null>(null);
   useEffect(()=>{
     const refresh = () => {
-      const next = `${urlImg}&t=${Date.now()}`;
+      const next = `${url}&t=${Date.now()}`;
       const img = new Image();
       img.onload = () => setSrc(next);
       img.src = next;
