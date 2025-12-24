@@ -1,13 +1,37 @@
-import { useState } from "react";
+// src/pages/Index.tsx (hoặc src/pages/index.tsx)
+import { useEffect, useState } from "react";
 import CameraGrid from "@/components/CameraGrid";
 import SideBar from "@/components/SideBar";
 import Header from "@/components/HeaderHome";
 import CameraSelectDialog from "@/components/CameraSelectDialog";
-import { CAMERAS, Camera } from "@/data/cam";
+import type { Camera } from "@/lib/api";
+
+const STORAGE_KEY = "selectedCameras";
 
 const Index = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedCameras, setSelectedCameras] = useState<Camera[]>(CAMERAS);
+  const [selectedCameras, setSelectedCameras] = useState<Camera[]>([]);
+
+  // Load selected cameras từ localStorage (nếu có)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) setSelectedCameras(parsed);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Save selected cameras
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedCameras));
+    } catch {
+      // ignore
+    }
+  }, [selectedCameras]);
 
   return (
     <div className="min-h-screen bg-background">
