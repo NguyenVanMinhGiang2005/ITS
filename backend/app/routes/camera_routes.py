@@ -1,3 +1,5 @@
+# backend\app\routes\camera_routes.py
+
 from fastapi import APIRouter, HTTPException, Query
 from app.models.camera import CamerasListOut, CameraOut
 from app.services.camera_service import CameraService
@@ -9,7 +11,7 @@ async def list_cameras(
     limit: int = Query(50, ge=1, le=200),
     skip: int = Query(0, ge=0),
 ):
-    items, total = await CameraService.list_cameras(limit=limit, skip=skip)
+    items, total = await CameraService.list_camera(limit=limit, skip=skip)
     return {"items": items, "total": total}
 
 @router.get("/{camera_id}", response_model=CameraOut)

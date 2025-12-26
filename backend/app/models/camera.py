@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 class CameraOut(BaseModel):
-    id: str = Field(..., description="Mongo _id as string")
+    id: str 
     name: str
     url: str
     location: Optional[str] = None
