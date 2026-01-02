@@ -4,20 +4,21 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Test from "./pages/Test-img"
 import Search from "./pages/Search"
+import Detection from "./pages/Detection"
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/test-img" element={<Test />}/>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/test-img" element={<Test />} />
+        <Route path="/detection" element={<Detection />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

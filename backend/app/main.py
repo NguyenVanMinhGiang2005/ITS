@@ -2,8 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.routes.camera_routes import router as camera_router
+from app.routes.detection_routes import router as detection_router
+from app.routes.proxy_routes import router as proxy_router
 
-app = FastAPI()
+app = FastAPI(
+    title="ITS - Intelligent Transport System",
+    description="Vehicle Detection & Monitoring API",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +26,8 @@ app.add_middleware(
 
 @app.get("/api/health")
 def health():
-    return {"ok": True}
+    return {"ok": True, "service": "ITS Detection API"}
 
 app.include_router(camera_router, prefix=settings.API_PREFIX)
+app.include_router(detection_router, prefix=settings.API_PREFIX)
+app.include_router(proxy_router, prefix=settings.API_PREFIX)

@@ -25,6 +25,10 @@ async def proxy_image(url: str):
     return Response(
         content=r.content,
         media_type=r.headers.get("content-type", "image/jpeg"),
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-cache",
+        },
     )
 
 @router.get("/hls")
@@ -71,7 +75,14 @@ async def proxy_hls_playlist(url: str):
         proxied = f"/api/proxy/hls/segment?url={quote(abs_uri, safe='')}"
         out_lines.append(proxied)
 
-    return PlainTextResponse("\n".join(out_lines), media_type="application/vnd.apple.mpegurl")
+    return PlainTextResponse(
+        "\n".join(out_lines), 
+        media_type="application/vnd.apple.mpegurl",
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-cache",
+        },
+    )
 
 @router.get("/hls/segment")
 async def proxy_hls_segment(url: str):
@@ -98,7 +109,13 @@ async def proxy_hls_segment(url: str):
                 await resp.aclose()
                 await client.aclose()
 
-        return StreamingResponse(iter_bytes(), media_type=content_type)
+        return StreamingResponse(
+            iter_bytes(), 
+            media_type=content_type,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+            }
+        )
 
     except httpx.RequestError as e:
         await client.aclose()

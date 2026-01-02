@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+httpx
+python-multipart
+ultralytics
+opencv-python-headless
+numpy
+shapely
+supervision
+lap

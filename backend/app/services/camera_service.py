@@ -5,11 +5,11 @@ from app.core.config import settings
 from urllib.parse import urlparse, parse_qs
 
 # khởi tạo bộ nhớ đệm 
-_cache: list[dir[str, Any]] | None = None # lần đầu lưu nội dung của json để tái sử dụng 
+_cache: list[dict[str, Any]] | None = None
 _cache_mtime: float | None = None # lưu lại thời gian để biết khi nào phải thay đổi để cập nhập lại _cache
 
 
-def _load_json() -> list[dir[str, Any]]:
+def _load_json() -> list[dict[str, Any]]:
     global _cache, _cache_mtime
 
     path = settings.DATA
