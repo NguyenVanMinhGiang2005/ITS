@@ -2,6 +2,8 @@ import asyncio
 import json
 from datetime import datetime
 from typing import Optional
+from urllib.parse import urlparse
+from app.routes.media_routes import resolve_media_path
 
 from app.models.detection import (
     DetectionResult,
@@ -20,6 +22,18 @@ from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/detection", tags=["detection"])
 
+def _resolve_video_url(video_url: str) -> str:
+    try:
+        parsed = urlparse(video_url)
+        path = parsed.path or video_url
+        marker = "/api/media/"
+        if marker in path:
+            media_id = path.split(marker, 1)[1].split("/", 1)[0]
+            local = resolve_media_path(media_id)
+            return local or video_url
+    except Exception:
+        pass
+    return video_url
 
 @router.post("/detect", response_model=DetectResponse)
 async def detect_vehicles(request: DetectRequest):
@@ -105,7 +119,7 @@ class DetectVideoRequest(BaseModel):
 async def detect_from_video(request: DetectVideoRequest):
     try:
         result = await DetectionService.detect_from_video_url(
-            video_url=request.video_url,
+            video_url=_resolve_video_url(request.video_url),
             camera_id=request.camera_id,
             use_tracking=request.camera_id is not None,
         )
@@ -280,7 +294,7 @@ async def video_detection_stream(websocket: WebSocket, camera_id: str):
 
         import cv2
 
-        cap = cv2.VideoCapture(video_url)
+        cap = cv2.VideoCapture(_resolve_video_url(video_url))
 
         if not cap.isOpened():
             await websocket.send_json(
