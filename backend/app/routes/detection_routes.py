@@ -333,7 +333,7 @@ async def video_detection_stream(websocket: WebSocket, camera_id: str):
             ret, frame = cap.read()
             if not ret:
                 cap.release()
-                cap = cv2.VideoCapture(video_url)
+                cap = cv2.VideoCapture(_resolve_video_url(video_url))
                 await asyncio.sleep(0.5)
                 continue
 
