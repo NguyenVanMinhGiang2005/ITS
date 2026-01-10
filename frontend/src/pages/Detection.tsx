@@ -51,7 +51,17 @@ export default function DetectionPage() {
     const [syncedFrame, setSyncedFrame] = useState<string | null>(null);
 
     const detectIntervalRef = useRef<number | null>(null);
-    const isM3u8 = cameraUrl.toLowerCase().includes(".m3u8");
+    const urlLower = cameraUrl.toLowerCase();
+    const isVideo =
+        urlLower.includes("/api/media/") ||
+        urlLower.includes(".m3u8") ||
+        urlLower.includes(".mp4") ||
+        urlLower.includes(".mov") ||
+        urlLower.includes(".mkv") ||
+        urlLower.includes(".avi") ||
+        urlLower.includes(".webm");
+
+    const isM3u8 = urlLower.includes(".m3u8");
 
     const getProxiedImageUrl = useCallback(() => {
         const cleaned = cameraUrl.replace(/[?&]t=\d+/g, "");
@@ -199,7 +209,8 @@ export default function DetectionPage() {
 
     useEffect(() => {
         if (isDetecting) {
-            if (isM3u8) {
+            if (isVideo) {
+                if (isM3u8) {
                 const ws = new WebSocket(`${WS_BASE}/api/detection/video-stream/${encodeURIComponent(cameraId)}`);
                 wsRef.current = ws;
 
@@ -211,31 +222,31 @@ export default function DetectionPage() {
 
                 ws.onmessage = (event) => {
                     try {
-                        const data = JSON.parse(event.data);
-                        if (data.type === "detection_result") {
-                            setResult(data.result);
-                            setViolations(data.violations || []);
-                            setFrameSize({
-                                width: data.result.frame_width,
-                                height: data.result.frame_height
-                            });
-                            setDebugInfo(`${data.result.total_count} vehicles (${data.result.processing_time_ms.toFixed(0)}ms)`);
-
-                            if (data.frame) {
-                                setSyncedFrame(data.frame);
-                            }
-                        } else if (data.type === "connected") {
-                            setDebugInfo("Video stream connected!");
-                        } else if (data.type === "error") {
-                            setDebugInfo(`Error: ${data.error}`);
-                        }
+                    const data = JSON.parse(event.data);
+                    if (data.type === "detection_result") {
+                        setResult(data.result);
+                        setViolations(data.violations || []);
+                        setFrameSize({ width: data.result.frame_width, height: data.result.frame_height });
+                        setDebugInfo(`${data.result.total_count} vehicles (${data.result.processing_time_ms.toFixed(0)}ms)`);
+                        if (data.frame) setSyncedFrame(data.frame);
+                    } else if (data.type === "connected") {
+                        setDebugInfo("Video stream connected!");
+                    } else if (data.type === "error") {
+                        setDebugInfo(`Error: ${data.error}`);
+                    }
                     } catch (e) {
-                        console.error("WS message parse error:", e);
+                    console.error("WS message parse error:", e);
                     }
                 };
 
                 ws.onerror = () => setDebugInfo("WebSocket error");
                 ws.onclose = () => console.log("WebSocket closed");
+                } else {
+                // ✅ mp4 / api/media => dùng endpoint detect-video
+                runDetectionForVideo();
+                detectIntervalRef.current = window.setInterval(runDetectionForVideo, 3000);
+                }
+            
             } else {
                 runDetectionForImage();
                 detectIntervalRef.current = window.setInterval(runDetectionForImage, 3000);
@@ -260,7 +271,8 @@ export default function DetectionPage() {
             }
             if (detectIntervalRef.current) clearInterval(detectIntervalRef.current);
         };
-    }, [isDetecting, isM3u8, cameraId, cameraUrl, runDetectionForImage]);
+    },[isDetecting, isVideo, isM3u8, cameraId, cameraUrl, runDetectionForImage, runDetectionForVideo]);
+
 
     const handleVideoLoad = useCallback(() => {
         const video = videoRef.current;
@@ -374,8 +386,16 @@ export default function DetectionPage() {
                                 onLoad={handleImageLoad}
                                 crossOrigin="anonymous"
                                 onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "https://via.placeholder.com/640x360?text=Camera+Offline";
-                                }}
+                                    (e.target as HTMLImageElement).src =
+                                        "data:image/svg+xml;utf8," +
+                                        encodeURIComponent(
+                                        `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
+                                            <rect width='100%' height='100%' fill='#111827'/>
+                                            <text x='50%' y='50%' fill='#e5e7eb' font-size='28' font-family='Arial'
+                                            dominant-baseline='middle' text-anchor='middle'>Camera Offline</text>
+                                        </svg>`
+                                        );
+                                    }}
                             />
                         )}
 
